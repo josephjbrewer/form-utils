@@ -15,8 +15,9 @@
     }
   ],
   "autoload": {
-    "psr-4": {
-      "JJB\\FormUtils\\": "form-utils/src"
+    "psr-0": {
+      "JJB\\FormUtilsBundle": ""
     }
-  }
+  },
+  "target-dir": "JJB/FormUtilsBundle"
 }
