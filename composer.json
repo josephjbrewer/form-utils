@@ -1,0 +1,22 @@
+{
+  "name": "josephjbrewer/form-utils",
+  "description": "Symfony2 Form Stuff",
+  "minimum-stability": "dev",
+  "license": "MIT",
+  "type": "library",
+  "require": {
+    "php": ">=5.5.0"
+  },
+  "require-dev": {
+  },
+  "authors": [
+    {
+      "name": "Joseph J Brewer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "JJB\\FormUtils\\": "form-utils/src"
+    }
+  }
+}
