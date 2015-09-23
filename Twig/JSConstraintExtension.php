@@ -2,7 +2,7 @@
 
 namespace JJB\FormUtilsBundle\Twig;
 
-use CSID\IMC\Baseline\CoreBundle\Service\JSConstraintService;
+use JJB\FormUtilsBundle\Service\JSConstraintService;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints;
 

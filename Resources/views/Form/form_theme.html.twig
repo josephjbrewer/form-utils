@@ -1,5 +1,4 @@
 {% extends 'form_div_layout.html.twig' %}
-{% form_theme form _self %}
 
 {% block form_row %}
     {{ form_label(form) }}
@@ -7,9 +6,17 @@
     {{ form_errors(form) }}
 {% endblock form_row %}
 
+{% block form_label %}
+    {{ parent() }}
+
+    {% if required %}
+        <span class="required" title="This field is required">*</span>
+    {% endif %}
+{% endblock %}
+
 {%- block widget_attributes -%}
     {% spaceless %}
-        {% set attr = add_js_constraints(attr, errors.form.config.options.constraints, translation_domain) %}
+        {% set attr = id|add_js_constraints(attr, errors.form.config.options.constraints, translation_domain) %}
 
         id="{{ id }}" name="{{ full_name }}"
         {%- if read_only and attr.readonly is not defined %} readonly="readonly"{% endif -%}
