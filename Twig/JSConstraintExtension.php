@@ -1,6 +1,6 @@
 <?php
 
-namespace JJB\FormUtils\Twig;
+namespace JJB\FormUtilsBundle\Twig;
 
 use CSID\IMC\Baseline\CoreBundle\Service\JSConstraintService;
 use Symfony\Component\Validator\Constraint;

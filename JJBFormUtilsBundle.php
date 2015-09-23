@@ -1,6 +1,6 @@
 <?php
 
-namespace JJB\FormUtils;
+namespace JJB\FormUtilsBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace JJB\FormUtils\DependencyInjection;
+namespace JJB\FormUtilsBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;

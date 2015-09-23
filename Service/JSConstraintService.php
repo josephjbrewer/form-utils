@@ -1,6 +1,6 @@
 <?php
 
-namespace JJB\FormUtils\Service;
+namespace JJB\FormUtilsBundle\Service;
 
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Validator\Constraint;
