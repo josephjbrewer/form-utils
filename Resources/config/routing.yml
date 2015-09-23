@@ -1,3 +1,0 @@
-jjb_form_utils_homepage:
-    path:     /hello/{name}
-    defaults: { _controller: JJBFormUtilsBundle:Default:index }

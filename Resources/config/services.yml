@@ -1,4 +1,10 @@
 services:
-#    jjb_form_utils.example:
-#        class: JJB\FormUtilsBundle\Example
-#        arguments: [@service_id, "plain_value", %parameter%]
+    jjb.formUtilsBundle.twig.extension.addJsConstraints:
+        class: JJB\FormUtilsBundle\Twig\JSConstraintExtension
+        arguments: [@imc.baseline.core.service.js_constraint]
+        tags:
+            - { name: twig.extension, alias: add_js_constraints }
+
+    imc.baseline.core.service.js_constraint:
+        class: JJB\FormUtilsBundle\Service\JSConstraintService
+        arguments: [@translator]
