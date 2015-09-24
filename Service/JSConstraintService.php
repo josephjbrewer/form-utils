@@ -82,7 +82,7 @@ class JSConstraintService
                         $constraint->min,
                         $this->trans($constraint->exactMessage, [
                             'limit' => $constraint->min
-                        ], $domain)
+                        ], $domain, $constraint->min)
                     );
                 } else {
                     if ($constraint->min > 0) {
@@ -92,7 +92,7 @@ class JSConstraintService
                             $constraint->min,
                             $this->trans($constraint->minMessage, [
                                 'limit' => $constraint->min
-                            ], $domain)
+                            ], $domain, $constraint->min)
                         );
                     }
 
@@ -103,7 +103,7 @@ class JSConstraintService
                             $constraint->max,
                             $this->trans($constraint->maxMessage, [
                                 'limit' => $constraint->max
-                            ], $domain)
+                            ], $domain, $constraint->max)
                         );
                     }
                 }
@@ -124,7 +124,7 @@ class JSConstraintService
 
             case self::CONSTRAINT_TYPE_EMAIL:
                 /** @var Constraints\Email $constraint */
-                $tests[]    = "__EMAIL__";
+                $tests[]    = "^.+\@\S+\.\S+$";
                 $messages[] = $this->trans($constraint->message, [], $domain);
                 break;
 
@@ -138,11 +138,12 @@ class JSConstraintService
     /**
      * @param string $string
      * @param string array $params
-     * @param $domain
+     * @param string $domain
+     * @param int $number
      * @return string
      */
-    private function trans($string, array $params = [], $domain)
+    private function trans($string, array $params = [], $domain, $number = 1)
     {
-        return $this->translator->trans($string, $params, $domain);
+        return $this->translator->transChoice($string, $number, $params, $domain);
     }
 }

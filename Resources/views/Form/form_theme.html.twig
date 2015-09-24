@@ -14,6 +14,16 @@
     {% endif %}
 {% endblock %}
 
+{% block form_errors %}
+    {% spaceless %}
+        <small class="error{% if errors|length <= 0 %} hide{% endif %}">
+            {% for error in errors %}
+                {{ error.message|trans({}, translation_domain)|trim }} {% if not loop.last %}<br/>{% endif %}
+            {% endfor %}
+        </small>
+    {% endspaceless %}
+{% endblock form_errors %}
+
 {%- block widget_attributes -%}
     {% spaceless %}
         {% set attr = id|add_js_constraints(attr, errors.form.config.options.constraints, translation_domain) %}
