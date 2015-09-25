@@ -15,22 +15,14 @@
             }
         });
 
-        $.each($(form).find('input,select,textarea'), function (idx, element) {
-            $.fn.bindElement(element);
-        });
-    };
-
-    $.fn.bindElement = function (el) {
-        $(el).on('focus', function () {
+        $(form).on('focus', 'input,select,textarea', function () {
             showSuggestText(this);
-        }).on('blur', function (e) {
+        }).on('blur', 'input,select,textarea', function (e) {
             hideSuggestText(this);
             return validateElement(this, e);
-        }).on('change', function (e) {
+        }).on('change', 'input,select,textarea', function (e) {
             return validateElement(this, e);
         });
-
-        return this;
     };
 
     var validateForm = function (form) {
@@ -126,16 +118,18 @@
     };
 
     var assertConstraint = function (element, assertion) {
+        var value = element.val();
+        var expression = assertion.match(/^__\((.*)\)__$/);
         var generic = assertion.match(/__([\_a-zA-Z0-9]+)__/g);
         var map = {
             "__NOT_BLANK__": "NotBlank",
-            "__LUHN__": "Luhn",
-            "__EMAIL__": "Email"
+            "__LUHN__": "Luhn"
         };
 
-        var value = element.val();
+        if (expression && expression.length >= 2 && value != '') {
+            return constraints.Expression(value, expression[1].replace('{{value}}', element.val()));
 
-        if (generic) {
+        } else if (generic) {
             if (map[assertion] != undefined) {
 
                 var method = map[assertion];
@@ -152,10 +146,13 @@
     };
 
     var constraints = {
+        "Expression": function (val, expression) {
+            return eval(expression);
+        },
         "Regex": function (val, assertion) {
             var pattern = new RegExp(assertion, 'g');
 
-            return pattern.test(val)
+            return pattern.test(val);
         },
         "NotBlank": function (val) {
             return (val.trim() !== "");

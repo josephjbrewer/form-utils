@@ -9,15 +9,6 @@ use Symfony\Component\Validator\Constraints;
 class JSConstraintService
 {
     /**
-     * Types of constraints that we currently support
-     */
-    const CONSTRAINT_TYPE_LENGTH   = 'Length';
-    const CONSTRAINT_TYPE_REGEX    = 'Regex';
-    const CONSTRAINT_TYPE_NOTBLANK = 'NotBlank';
-    const CONSTRAINT_TYPE_EMAIL    = 'Email';
-    const CONSTRAINT_TYPE_LUHN     = 'Luhn';
-
-    /**
      * @var Translator
      */
     private $translator;
@@ -37,99 +28,127 @@ class JSConstraintService
      */
     public function extractConstraints(Constraint $constraint, $domain = null, $tests = [], $messages = [])
     {
-        $namespace = get_class($constraint);
-        $parts     = explode('\\', $namespace);
-        $class     = array_pop($parts);
+        if ($constraint instanceof Constraints\NotBlank) {
+            $tests[]    = "__NOT_BLANK__";
+            $messages[] = $this->trans($constraint->message, [], $domain);
 
-        switch ($class) {
+        } else if ($constraint instanceof Constraints\Regex) {
+            $tests[]    = trim($constraint->pattern, '/');
+            $messages[] = $this->trans($constraint->message, [], $domain);
 
-            /*
-             * TODO: Add support for the following constraints
-             *
-             * - Blank
-             * - CardScheme
-             * - Count
-             * - Date
-             * - DateTime
-             * - EqualTo
-             * - GreaterThan
-             * - LessThan
-             * - GreaterThanOrEqualTo
-             * - LessThanOrEqualTo
-             * - Iban
-             * - Ip
-             * - Isbn
-             * - NotEqualTo
-             * - Range
-             * - Time
-             * - Url
-             */
-
-            case self::CONSTRAINT_TYPE_NOTBLANK:
-                /**
-                 * @var Constraints\NotBlank $constraint
-                 */
-                $tests[]    = "__NOT_BLANK__";
-                $messages[] = $this->trans($constraint->message, [], $domain);
-                break;
-
-            case self::CONSTRAINT_TYPE_LENGTH:
-                /** @var Constraints\Length $constraint */
-                if ($constraint->min > 0 && $constraint->max > 0 && ($constraint->min === $constraint->max)) {
-                    $tests[]    = '^.{' . $constraint->min . ',' . $constraint->max . '}$';
+        } else if ($constraint instanceof Constraints\Length) {
+            if ($constraint->min > 0 && $constraint->max > 0 && ($constraint->min === $constraint->max)) {
+                $tests[]    = '^.{' . $constraint->min . ',' . $constraint->max . '}$';
+                $messages[] = str_replace(
+                    '{{ ' . $constraint->min . ' }}',
+                    $constraint->min,
+                    $this->trans($constraint->exactMessage, [
+                        'limit' => $constraint->min
+                    ], $domain, $constraint->min)
+                );
+            } else {
+                if ($constraint->min > 0) {
+                    $tests[]    = '.{' . $constraint->min . ',}';
                     $messages[] = str_replace(
                         '{{ ' . $constraint->min . ' }}',
                         $constraint->min,
-                        $this->trans($constraint->exactMessage, [
+                        $this->trans($constraint->minMessage, [
                             'limit' => $constraint->min
                         ], $domain, $constraint->min)
                     );
-                } else {
-                    if ($constraint->min > 0) {
-                        $tests[]    = '.{' . $constraint->min . ',}';
-                        $messages[] = str_replace(
-                            '{{ ' . $constraint->min . ' }}',
-                            $constraint->min,
-                            $this->trans($constraint->minMessage, [
-                                'limit' => $constraint->min
-                            ], $domain, $constraint->min)
-                        );
-                    }
-
-                    if ($constraint->max > 0) {
-                        $tests[]    = '^.{0,' . $constraint->max . '}$';
-                        $messages[] = str_replace(
-                            '{{ ' . $constraint->max . ' }}',
-                            $constraint->max,
-                            $this->trans($constraint->maxMessage, [
-                                'limit' => $constraint->max
-                            ], $domain, $constraint->max)
-                        );
-                    }
                 }
 
-                break;
+                if ($constraint->max > 0) {
+                    $tests[]    = '^.{0,' . $constraint->max . '}$';
+                    $messages[] = str_replace(
+                        '{{ ' . $constraint->max . ' }}',
+                        $constraint->max,
+                        $this->trans($constraint->maxMessage, [
+                            'limit' => $constraint->max
+                        ], $domain, $constraint->max)
+                    );
+                }
+            }
+        } else if ($constraint instanceof Constraints\Email) {
+            $tests[]    = "^.+\@\S+\.\S+$";
+            $messages[] = $this->trans($constraint->message, [], $domain);
 
-            case self::CONSTRAINT_TYPE_REGEX:
-                /** @var Constraints\Regex $constraint */
-                $tests[]    = str_replace('/', '', $constraint->pattern);
-                $messages[] = $this->trans($constraint->message, [], $domain);
-                break;
+        } else if ($constraint instanceof Constraints\CardScheme) {
+            $tests[]    = '__CARD_SCHEME__';
+            $messages[] = $this->trans($constraint->message, [], $domain);
 
-            case self::CONSTRAINT_TYPE_LUHN:
-                /** @var Constraints\Luhn $constraint */
-                $tests[]    = '__LUHN__';
-                $messages[] = $this->trans($constraint->message, [], $domain);
-                break;
+        } else if ($constraint instanceof Constraints\Date) {
+            $tests[]    = '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
+            $messages[] = $this->trans($constraint->message, [], $domain);
 
-            case self::CONSTRAINT_TYPE_EMAIL:
-                /** @var Constraints\Email $constraint */
-                $tests[]    = "^.+\@\S+\.\S+$";
-                $messages[] = $this->trans($constraint->message, [], $domain);
-                break;
+        } else if ($constraint instanceof Constraints\Time) {
+            $tests[]    = '^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$';
+            $messages[] = $this->trans($constraint->message, [], $domain);
 
-            default:
-                break;
+        } else if ($constraint instanceof Constraints\DateTime) {
+            $tests[]    = '^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}\:[0-9]{2}\:[0-9]{2}$';
+            $messages[] = $this->trans($constraint->message, [], $domain);
+
+        } else if ($constraint instanceof Constraints\EqualTo) {
+            $tests[]    = '^' . $constraint->value . '$';
+            $messages[] = str_replace(
+                '{{ compared_value }}',
+                $constraint->value,
+                $this->trans($constraint->message, [], $domain)
+            );
+
+        } else if ($constraint instanceof Constraints\NotEqualTo) {
+            $tests[]    = '^(?!' . $constraint->value . ').+$';
+            $messages[] = str_replace(
+                '{{ compared_value }}',
+                $constraint->value,
+                $this->trans($constraint->message, [], $domain)
+            );
+
+        } else if ($constraint instanceof Constraints\GreaterThan) {
+            $tests[]    = '__({{value}} > ' . $constraint->value . ')__';
+            $messages[] = str_replace(
+                '{{ compared_value }}',
+                $constraint->value,
+                $this->trans($constraint->message, [], $domain)
+            );
+
+        } else if ($constraint instanceof Constraints\LessThan) {
+            $tests[]    = '__({{value}} < ' . $constraint->value . ')__';
+            $messages[] = str_replace(
+                '{{ compared_value }}',
+                $constraint->value,
+                $this->trans($constraint->message, [], $domain)
+            );
+
+        } else if ($constraint instanceof Constraints\GreaterThanOrEqual) {
+            $tests[]    = '__({{value}} >= ' . $constraint->value . ')__';
+            $messages[] = str_replace(
+                '{{ compared_value }}',
+                $constraint->value,
+                $this->trans($constraint->message, [], $domain)
+            );
+
+        } else if ($constraint instanceof Constraints\LessThanOrEqual) {
+            $tests[]    = '__({{value}} <= ' . $constraint->value . ')__';
+            $messages[] = str_replace(
+                '{{ compared_value }}',
+                $constraint->value,
+                $this->trans($constraint->message, [], $domain)
+            );
+
+        } else if ($constraint instanceof Constraints\Ip) {
+            $tests[]    = '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$';
+            $messages[] = $this->trans($constraint->message, [], $domain);
+
+        } else if ($constraint instanceof Constraints\Url) {
+            $tests[]    = '^(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$';
+            $messages[] = $this->trans($constraint->message, [], $domain);
+
+        } else if ($constraint instanceof Constraints\Luhn) {
+            $tests[]    = '__LUHN__';
+            $messages[] = $this->trans($constraint->message, [], $domain);
+
         }
 
         return [$tests, $messages];
