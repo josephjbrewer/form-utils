@@ -41,12 +41,16 @@
 
         var element = $(el);
         var errors = [];
+        var required = ( $(el).attr('required') ) ? true : false;
 
         // Skip validation
         if (element.attr('data-ignore-validation') ||
             element.attr('disabled') ||
-            element.attr('readonly')
+            element.attr('readonly') ||
+            (!required && element.val() == '')
         ) {
+            clearErrors(element);
+            hideErrors(element);
             return true;
         }
 
