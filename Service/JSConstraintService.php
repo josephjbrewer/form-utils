@@ -142,7 +142,7 @@ class JSConstraintService
             $messages[] = $this->trans($constraint->message, [], $domain);
 
         } else if ($constraint instanceof Constraints\Url) {
-            $tests[]    = '^(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$';
+            $tests[]    = '^(https?:\/\/)([\d\w]+)\.?([\d\w\-_]+)?\.([\d\w\-_]+\.([a-z0-9]{2,6}))(.*)$';
             $messages[] = $this->trans($constraint->message, [], $domain);
 
         } else if ($constraint instanceof Constraints\Luhn) {
