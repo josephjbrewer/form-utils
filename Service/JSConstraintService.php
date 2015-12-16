@@ -39,34 +39,19 @@ class JSConstraintService
         } else if ($constraint instanceof Constraints\Length) {
             if ($constraint->min > 0 && $constraint->max > 0 && ($constraint->min === $constraint->max)) {
                 $tests[]    = '^.{' . $constraint->min . ',' . $constraint->max . '}$';
-                $messages[] = str_replace(
-                    '{{ ' . $constraint->min . ' }}',
-                    $constraint->min,
-                    $this->trans($constraint->exactMessage, [
-                        'limit' => $constraint->min
-                    ], $domain, $constraint->min)
-                );
+                $_msg = $this->trans($constraint->exactMessage, [], $domain, $constraint->min);
+                $messages[] = preg_replace('/\{\{\s?limit\s?\}\}/', $constraint->min, $_msg);
             } else {
                 if ($constraint->min > 0) {
                     $tests[]    = '.{' . $constraint->min . ',}';
-                    $messages[] = str_replace(
-                        '{{ ' . $constraint->min . ' }}',
-                        $constraint->min,
-                        $this->trans($constraint->minMessage, [
-                            'limit' => $constraint->min
-                        ], $domain, $constraint->min)
-                    );
+                    $_msg = $this->trans($constraint->minMessage, [], $domain, $constraint->min);
+                    $messages[] = preg_replace('/\{\{\s?limit\s?\}\}/', $constraint->min, $_msg);
                 }
 
                 if ($constraint->max > 0) {
                     $tests[]    = '^.{0,' . $constraint->max . '}$';
-                    $messages[] = str_replace(
-                        '{{ ' . $constraint->max . ' }}',
-                        $constraint->max,
-                        $this->trans($constraint->maxMessage, [
-                            'limit' => $constraint->max
-                        ], $domain, $constraint->max)
-                    );
+                    $_msg = $this->trans($constraint->maxMessage, [], $domain, $constraint->max);
+                    $messages[] = preg_replace('/\{\{\s?limit\s?\}\}/', $constraint->max, $_msg);
                 }
             }
         } else if ($constraint instanceof Constraints\Email) {
@@ -92,7 +77,7 @@ class JSConstraintService
         } else if ($constraint instanceof Constraints\EqualTo) {
             $tests[]    = '^' . $constraint->value . '$';
             $messages[] = str_replace(
-                '{{ compared_value }}',
+                '{{compared_value}}',
                 $constraint->value,
                 $this->trans($constraint->message, [], $domain)
             );
@@ -100,7 +85,7 @@ class JSConstraintService
         } else if ($constraint instanceof Constraints\NotEqualTo) {
             $tests[]    = '^(?!' . $constraint->value . ').+$';
             $messages[] = str_replace(
-                '{{ compared_value }}',
+                '{{compared_value}}',
                 $constraint->value,
                 $this->trans($constraint->message, [], $domain)
             );
@@ -108,7 +93,7 @@ class JSConstraintService
         } else if ($constraint instanceof Constraints\GreaterThan) {
             $tests[]    = '__({{value}} > ' . $constraint->value . ')__';
             $messages[] = str_replace(
-                '{{ compared_value }}',
+                '{{compared_value}}',
                 $constraint->value,
                 $this->trans($constraint->message, [], $domain)
             );
@@ -116,7 +101,7 @@ class JSConstraintService
         } else if ($constraint instanceof Constraints\LessThan) {
             $tests[]    = '__({{value}} < ' . $constraint->value . ')__';
             $messages[] = str_replace(
-                '{{ compared_value }}',
+                '{{compared_value}}',
                 $constraint->value,
                 $this->trans($constraint->message, [], $domain)
             );
@@ -124,7 +109,7 @@ class JSConstraintService
         } else if ($constraint instanceof Constraints\GreaterThanOrEqual) {
             $tests[]    = '__({{value}} >= ' . $constraint->value . ')__';
             $messages[] = str_replace(
-                '{{ compared_value }}',
+                '{{compared_value}}',
                 $constraint->value,
                 $this->trans($constraint->message, [], $domain)
             );
@@ -132,7 +117,7 @@ class JSConstraintService
         } else if ($constraint instanceof Constraints\LessThanOrEqual) {
             $tests[]    = '__({{value}} <= ' . $constraint->value . ')__';
             $messages[] = str_replace(
-                '{{ compared_value }}',
+                '{{compared_value}}',
                 $constraint->value,
                 $this->trans($constraint->message, [], $domain)
             );

@@ -69,7 +69,9 @@
         var constraints = element.attr("data-constraints");
         var messages = element.attr("data-error-messages");
 
-        if (constraints !== undefined && constraints.length > 0) {
+        if (constraints !== undefined && constraints.length > 0 &&
+            messages !== undefined && messages.length > 0
+        ) {
             constraints = JSON.parse(constraints);
             messages = JSON.parse(messages);
 
