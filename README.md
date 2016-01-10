@@ -35,7 +35,7 @@ Edit your composer.json file and add the following package:
 
 Edit app/config.yml and set the default form template provided by the form-utils bundle.
 
-```
+```yaml
 twig:
     form:
         resources:
