@@ -1,4 +1,4 @@
-josephjbrewer/form-utils
+# josephjbrewer/form-utils #
 
 
 Installation
@@ -29,4 +29,15 @@ Edit your composer.json file and add the following package:
   "josephjbrewer/form-utils": "dev-develop",
   ...
 }
+```
+
+### Step 3: Set default form template
+
+Edit app/config.yml and set the default form template provided by the form-utils bundle.
+
+```
+twig:
+    form:
+        resources:
+            - 'JJBFormUtilsBundle:Form:form_theme.html.twig'
 ```
