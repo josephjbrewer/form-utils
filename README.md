@@ -92,3 +92,15 @@ if ($('#myForm').validator('validate')) {
     // Do something
 }
 ```
+
+### Step 3: Add CSS
+
+```css
+.hide {
+  display: none;
+}
+
+small.error {
+  color: #990000;
+}
+```
