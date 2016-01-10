@@ -41,3 +41,9 @@ twig:
         resources:
             - 'JJBFormUtilsBundle:Form:form_theme.html.twig'
 ```
+
+
+Usage
+-----
+
+Add these two lines in your layout:
