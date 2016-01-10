@@ -1,4 +1,4 @@
-# josephjbrewer/form-utils #
+# JJB/FormUtilsBundle #
 
 
 Installation
