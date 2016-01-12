@@ -3,32 +3,44 @@
         continueOnError: false
     };
 
-    $.fn.validator = function (options) {
-        $.extend(config, options);
+    $.fn.validator = function (a, b) {
+        if (typeof a == 'object') {
+            $.extend(config, a);
+        }
 
-        var form = $(this);
+        if (typeof b == 'object') {
+            $.extend(config, b);
+        }
 
-        $(form).on('submit', function (e) {
-            if (!validateForm(this)) {
-                e.stopPropagation();
-                return false;
-            }
-        });
+        if (a == 'validate') {
+            return validateForm(this);
+        } else {
+            $(this).each(function (idx, form) {
+                $(form).on('submit', function (e) {
+                    if (!validateForm(this)) {
+                        e.stopPropagation();
+                        e.preventDefault();
 
-        $(form).on('focus', 'input,select,textarea', function () {
-            showSuggestText(this);
-        }).on('blur', 'input,select,textarea', function (e) {
-            hideSuggestText(this);
-            return validateElement(this, e);
-        }).on('change', 'input,select,textarea', function (e) {
-            return validateElement(this, e);
-        });
+                        return false;
+                    }
+                });
+
+                $(form).on('focus', 'input,select,textarea', function () {
+                    showSuggestText(this);
+                }).on('blur', 'input,select,textarea', function (e) {
+                    hideSuggestText(this);
+                    return validateElement(this, e);
+                }).on('change', 'input,select,textarea', function (e) {
+                    return validateElement(this, e);
+                });
+            });
+        }
     };
 
     var validateForm = function (form) {
         var hasErrors = false;
 
-        $.each($(form).find('input,select,textarea'), function (idx, element) {
+        $(form).find('input,select,textarea').each(function (idx, element) {
             if (!validateElement(element)) {
                 hasErrors = true;
             }
@@ -41,19 +53,25 @@
 
         var element = $(el);
         var errors = [];
+        var required = ( $(el).attr('required') ) ? true : false;
 
         // Skip validation
         if (element.attr('data-ignore-validation') ||
             element.attr('disabled') ||
-            element.attr('readonly')
+            element.attr('readonly') ||
+            (!required && element.val() == '')
         ) {
+            clearErrors(element);
+            hideErrors(element);
             return true;
         }
 
         var constraints = element.attr("data-constraints");
         var messages = element.attr("data-error-messages");
 
-        if (constraints !== undefined && constraints.length > 0) {
+        if (constraints !== undefined && constraints.length > 0 &&
+            messages !== undefined && messages.length > 0
+        ) {
             constraints = JSON.parse(constraints);
             messages = JSON.parse(messages);
 
@@ -158,5 +176,4 @@
             return (val.trim() !== "");
         }
     };
-})
-(jQuery);
+})(jQuery);
