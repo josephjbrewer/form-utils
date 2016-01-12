@@ -1,10 +1,11 @@
-{#{% extends 'form_div_layout.html.twig' %}#}
 {% extends 'bootstrap_3_layout.html.twig' %}
 
 {% block form_row %}
-    {{ form_label(form) }}
-    {{ form_widget(form) }}
-    {{ form_errors(form) }}
+    <div class="form-group">
+        {{ form_label(form) }}
+        {{ form_widget(form) }}
+        {{ form_errors(form) }}
+    </div>
 {% endblock form_row %}
 
 {% block form_label %}
@@ -17,7 +18,7 @@
 
 {% block form_errors %}
     {% spaceless %}
-        <small class="error{% if errors|length <= 0 %} hide{% endif %}">
+        <small data-validation-for="{{ id }}" class="error{% if errors|length <= 0 %} hide{% endif %}">
             {% for error in errors %}
                 {{ error.message|trans({}, translation_domain)|trim }} {% if not loop.last %}<br/>{% endif %}
             {% endfor %}

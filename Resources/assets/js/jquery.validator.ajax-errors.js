@@ -79,7 +79,7 @@
                 html += formatMessageTemplate(error);
             });
 
-            $(config.formObj).find('[data-for="' + key + '"]').removeClass('hide').html(html);
+            $(config.formObj).find('[data-validation-for="' + key + '"]').removeClass('hide').html(html);
         });
     };
 
