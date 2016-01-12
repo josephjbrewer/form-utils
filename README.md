@@ -19,25 +19,13 @@ Edit your composer.json file and add the following repository:
 ]
 ```
 
-### Step 2: Add package to composer
-
-Edit your composer.json file and add the following package:
+### Step 2: Require composer package
 
 ```
-"require": {
-  ...
-  "josephjbrewer/form-utils": "dev-develop",
-  ...
-}
+composer require josephjbrewer/form-utils dev-develop
 ```
 
-### Step 3: Run composer install
-
-```
-> composer install
-```
-
-### Step 4: Enable the bundle
+### Step 3: Enable the bundle
 
 ```php
 // app/AppKernel.php
@@ -50,7 +38,7 @@ public function registerBundles()
 }
 ```
 
-### Step 5: Set default form template
+### Step 4: Set default form template
 
 Edit app/config.yml and set the default form template provided by the form-utils bundle.
 
