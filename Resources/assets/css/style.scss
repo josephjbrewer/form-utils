@@ -1,0 +1,42 @@
+small.suggest,
+small.error {
+  display: block;
+  padding: 4px;
+}
+
+small.error {
+  color: #990000;
+
+  div.title {
+    margin-bottom: 0.5em;
+    padding-bottom: 0.5em;
+    border-bottom: 1px dotted;
+    font-size: 2em;
+  }
+}
+
+small.suggest {
+  color: #666;
+}
+
+div.root-error-container {
+  small.error {
+    margin-bottom: 2em;
+  }
+}
+
+.form-control {
+  &.error {
+    border: 1px solid #990000;
+    background: #f9f3f3;
+  }
+}
+
+input,
+select,
+textarea {
+  .error {
+    border: 1px solid #990000;
+    background: #f9f3f3;
+  }
+}

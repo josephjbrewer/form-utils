@@ -1,6 +1,7 @@
 (function ($) {
     var config = {
         continueOnError: false,
+        suggestTemplate: '{{message}}',
         messageTemplate: '{{message}}'
     };
 
@@ -36,6 +37,8 @@
                 });
             });
         }
+
+        return this;
     };
 
     var validateForm = function (form) {
@@ -103,10 +106,11 @@
     };
 
     var showSuggestText = function (element) {
-        var text = $(element).data('suggest');
+        var text = $(element).data('suggest')
 
         if (text != undefined && text != '') {
-            $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', 'suggest').html(text);
+            var html = formatSuggestTemplate(text);
+            $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', 'suggest').html(html);
         }
     };
     var hideSuggestText = function (element) {
@@ -115,6 +119,7 @@
 
     var hideErrors = function (element) {
         $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').addClass('hide');
+        $(element).removeClass('error');
     };
 
     var showErrors = function (element, errors) {
@@ -123,6 +128,7 @@
         if (alert != undefined) {
             alert.removeClass('hide');
             alert.html(formatErrors(errors));
+            $(element).addClass('error');
         }
     };
 
@@ -176,6 +182,10 @@
         "NotBlank": function (val) {
             return (val.trim() !== "");
         }
+    };
+
+    var formatSuggestTemplate = function (msg) {
+        return config.suggestTemplate.replace('{{message}}', msg);
     };
 
     var formatMessageTemplate = function (msg) {
