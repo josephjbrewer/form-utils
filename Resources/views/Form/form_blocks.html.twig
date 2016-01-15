@@ -1,0 +1,52 @@
+{%- block form_start -%}
+    {% set method = method|upper %}
+    {%- if method in ["GET", "POST"] -%}
+        {% set form_method = method %}
+    {%- else -%}
+        {% set form_method = "POST" %}
+    {%- endif -%}
+    <form id="{{ id }}" name="{{ name }}"
+          method="{{ form_method|lower }}" action="{{ action }}"{% for attrname, attrvalue in attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}{% if multipart %} enctype="multipart/form-data"{% endif %}>
+    {%- if form_method != method -%}
+        <input type="hidden" name="_method" value="{{ method }}"/>
+    {%- endif -%}
+{%- endblock form_start -%}
+
+{% block form_row %}
+    <div class="form-group">
+        {{ form_label(form) }}
+        {{ form_widget(form) }}
+        {{ form_errors(form) }}
+    </div>
+{% endblock form_row %}
+
+{% block form_errors %}
+    {% spaceless %}
+        <small data-validation-for="{{ id }}" class="error{% if errors|length <= 0 %} hide{% endif %}">
+            {% for error in errors %}
+                {{ error.message|trans({}, translation_domain)|trim }} {% if not loop.last %}<br/>{% endif %}
+            {% endfor %}
+        </small>
+    {% endspaceless %}
+{% endblock form_errors %}
+
+{%- block widget_attributes -%}
+    {% spaceless %}
+        {% set attr = id|add_js_constraints(attr, errors.form.config.options.constraints, translation_domain) %}
+
+        id="{{ id }}" name="{{ full_name }}"
+        {%- if read_only and attr.readonly is not defined %} readonly="readonly"{% endif -%}
+        {%- if disabled %} disabled="disabled"{% endif -%}
+        {%- if required %} required="required"{% endif -%}
+        {%- for attrname, attrvalue in attr -%}
+            {{- " " -}}
+            {%- if attrname in ['placeholder', 'title'] -%}
+                {{- attrname }}="{{ attrvalue|trans({}, translation_domain) }}"
+            {%- elseif attrvalue is same as(true) -%}
+                {{- attrname }}="{{ attrname }}"
+            {%- elseif attrvalue is not same as(false) -%}
+                {{- attrname }}="{{ attrvalue }}"
+            {%- endif -%}
+        {%- endfor -%}
+    {% endspaceless %}
+{%- endblock widget_attributes -%}

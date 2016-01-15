@@ -1,6 +1,8 @@
 (function ($) {
     var config = {
-        continueOnError: false
+        continueOnError: false,
+        suggestTemplate: '{{message}}',
+        messageTemplate: '{{message}}'
     };
 
     $.fn.validator = function (a, b) {
@@ -35,10 +37,14 @@
                 });
             });
         }
+
+        return this;
     };
 
     var validateForm = function (form) {
         var hasErrors = false;
+
+        clearErrors(form);
 
         $(form).find('input,select,textarea').each(function (idx, element) {
             if (!validateElement(element)) {
@@ -61,7 +67,6 @@
             element.attr('readonly') ||
             (!required && element.val() == '')
         ) {
-            clearErrors(element);
             hideErrors(element);
             return true;
         }
@@ -89,7 +94,6 @@
 
                 return false;
             } else {
-                clearErrors(element);
                 hideErrors(element);
             }
         }
@@ -97,39 +101,42 @@
         return true;
     };
 
+    var clearErrors = function (element) {
+        $(element).find('[data-validation-for]').html('').addClass('hide');
+    };
+
     var showSuggestText = function (element) {
-        var text = $(element).data('suggest');
+        var text = $(element).data('suggest')
 
         if (text != undefined && text != '') {
-            $(element).parent().find("small.error").attr('class', 'suggest').html(text);
+            var html = formatSuggestTemplate(text);
+            $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', 'suggest').html(html);
         }
     };
     var hideSuggestText = function (element) {
-        $(element).parent().find("small.suggest").attr('class', 'error hide').html('');
-    };
-
-    var clearErrors = function (element) {
-        $(element).parent().find("small.error").html('');
+        $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', 'error hide').html('');
     };
 
     var hideErrors = function (element) {
-        $(element).parent().find("small.error").addClass('hide');
+        $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').addClass('hide');
+        $(element).removeClass('error');
     };
 
     var showErrors = function (element, errors) {
-        var alert = $(element).parent().find("small.error");
+        var alert = $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]');
 
         if (alert != undefined) {
             alert.removeClass('hide');
-            alert.html(iterateErrors(errors));
+            alert.html(formatErrors(errors));
+            $(element).addClass('error');
         }
     };
 
-    var iterateErrors = function (errors) {
+    var formatErrors = function (errors) {
         var html = '';
 
         $.each(errors, function (idx, error) {
-            html += '<div>' + error + '</div>';
+            html += '<div>' + formatMessageTemplate(error) + '</div>';
         });
 
         return html;
@@ -175,5 +182,13 @@
         "NotBlank": function (val) {
             return (val.trim() !== "");
         }
+    };
+
+    var formatSuggestTemplate = function (msg) {
+        return config.suggestTemplate.replace('{{message}}', msg);
+    };
+
+    var formatMessageTemplate = function (msg) {
+        return config.messageTemplate.replace('{{message}}', msg);
     };
 })(jQuery);
