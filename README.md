@@ -115,8 +115,8 @@ Validator Options
 | Key | Description | Default Value |
 | --- | ----------- | ------------- |
 | continueOnError | Continue validation after an error occurs? | false |
-| suggestTemplate | Template used for data suggestions | "{{message}}" |
-| messageTemplate | Template used for error messages | "{{message}}" |
+| suggestTemplate | Template used for data suggestions | {{message}} |
+| messageTemplate | Template used for error messages | {{message}} |
 
 AJAX Errors Options
 -------------------
@@ -124,5 +124,5 @@ AJAX Errors Options
 | Key | Description | Default Value |
 | --- | ----------- | ------------- |
 | rootErrorMessage | Prepend root-level error with a title? (e.g. "Your form contains errors") | null |
-| separator | Character used to concatenate form id's. | "_" |
-| messageTemplate | Template used for error messages | "{{message}}" |
+| separator | Character used to concatenate form id's. | _ |
+| messageTemplate | Template used for error messages | {{message}} |
