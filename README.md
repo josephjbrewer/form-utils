@@ -105,9 +105,6 @@ $('#myForm').ajaxForm({
 });
 ```
 
-### Modify the CSS
-This bundle comes with a SASS file that should be used for default styling. It assumes that you are using Bootstrap CSS. Feel free to override any of the styles or even create your own stylesheet.
-
 Validator Options
 -----------------
 
