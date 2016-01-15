@@ -93,6 +93,20 @@ if ($('#myForm').validator('validate')) {
 }
 ```
 
+### Handle AJAX Errors
+
+```js
+$('#myForm').ajaxForm({
+    url: '/path/to/rest/endpoint',
+    success: function () {
+        // Do something
+    },
+    error: function (response) {
+        $('#myForm').ajaxErrors(response);
+    }
+});
+```
+
 ### Modify the CSS
 This bundle comes with a SASS file that should be used for default styling. It assumes that you are using Bootstrap CSS. Feel free to override any of the styles or even create your own stylesheet.
 ```
