@@ -76,9 +76,7 @@ Add the required SASS file. I recommend using assetic in your layout template:
 ```
 
 ### Bind validator to form
-Now all you need to do is bind the validator to your form(s).
 
-This will listen to the blur event on each form field and listen to the submit event of the form.
 ```js
 $(document).ready(){
     $('#myForm').validator();
@@ -118,4 +116,13 @@ Validator Options
 | --- | ----------- | ------------- |
 | continueOnError | Continue validation after an error occurs? | false |
 | suggestTemplate | Template used for data suggestions | "{{message}}" |
+| messageTemplate | Template used for error messages | "{{message}}" |
+
+AJAX Errors Options
+-------------------
+
+| Key | Description | Default Value |
+| --- | ----------- | ------------- |
+| rootErrorMessage | Prepend root-level error with a title? (e.g. "Your form contains errors") | null |
+| separator | Character used to concatenate form id's. | "_" |
 | messageTemplate | Template used for error messages | "{{message}}" |
