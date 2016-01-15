@@ -92,26 +92,8 @@
      * @param errors
      */
     var bindErrors = function (errors) {
-        var rootElementId = $(config.formObj).attr('id');
-
         $.each(errors, function (key, _errors) {
             var html = '';
-
-            if (key == '_root_') {
-                key = rootElementId;
-            }
-
-
-            // Only add optional title if form had root-level errors
-            if (Object.keys(config.errors).length > 0 && key == config.formPrefix) {
-                if (config.rootErrorMessage) {
-                    if (!config.errors[config.formPrefix]) {
-                        config.errors[config.formPrefix] = [];
-                    }
-
-                    html += formatMessageTemplate(config.rootErrorMessage, 'title');
-                }
-            }
 
             $.each(_errors, function (idx, error) {
                 html += formatMessageTemplate(error);
@@ -119,6 +101,12 @@
 
             $(config.formObj).find('[data-validation-for="' + key + '"]').removeClass('hide').html(html);
         });
+
+        // Add optional title to root-level error message block
+        if (config.rootErrorMessage) {
+            var title = formatMessageTemplate(config.rootErrorMessage, 'title');
+            $(config.formObj).find('[data-validation-for="' + config.formPrefix + '"]').removeClass('hide').prepend(title);
+        }
     };
 
     /**

@@ -40,3 +40,13 @@ textarea {
     background: #f9f3f3;
   }
 }
+
+small.error {
+  div:last-child {
+    &.title {
+      border-bottom: none !important;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+}
