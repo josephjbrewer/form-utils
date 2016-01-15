@@ -96,3 +96,12 @@ if ($('#myForm').validator('validate')) {
 ### Modify the CSS
 This bundle comes with a SASS file that should be used for default styling. It assumes that you are using Bootstrap CSS. Feel free to override any of the styles or even create your own stylesheet.
 ```
+
+Validator Options
+-----------------
+
+| Key | Description | Default Value |
+| --- | ----------- | ------------- |
+| continueOnError | Continue validation after an error occurs? | false |
+| suggestTemplate | Template used for data suggestions | "{{message}}" |
+| messageTemplate | Template used for error messages | "{{message}}" |
