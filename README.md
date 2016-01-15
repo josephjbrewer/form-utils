@@ -55,7 +55,7 @@ twig:
 Usage
 -----
 
-### Add javascript dependencies
+### Add javascript & css dependencies
 
 Add the required javascript files. I recommend using assetic in your layout template:
 
@@ -64,6 +64,15 @@ Add the required javascript files. I recommend using assetic in your layout temp
 {% javascripts '@JJBFormUtilsBundle/Resources/assets/js/jquery.validator.ajax-errors.js' %} %}
 <script type="text/javascript" src="{{ asset_url }}"></script>
 {% endjavascripts %}
+```
+
+Add the required SASS file. I recommend using assetic in your layout template:
+
+```html
+{% stylesheets
+'@JJBFormUtilsBundle/Resources/assets/css/style.scss' filter='compass' %}
+<link rel="stylesheet" href="{{ asset_url }}"/>
+{% endstylesheets %}
 ```
 
 ### Bind validator to form
