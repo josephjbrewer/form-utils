@@ -61,7 +61,7 @@ Add the required javascript files. I recommend using assetic in your layout temp
 
 ```html
 {% javascripts '@JJBFormUtilsBundle/Resources/assets/js/jquery.validator.js'
-{% javascripts '@JJBFormUtilsBundle/Resources/assets/js/jquery.validator.ajax-errors.js' %} %}
+'@JJBFormUtilsBundle/Resources/assets/js/jquery.validator.ajax-errors.js' %}
 <script type="text/javascript" src="{{ asset_url }}"></script>
 {% endjavascripts %}
 ```
