@@ -1,7 +1,6 @@
 # JJB/FormUtilsBundle #
 
-This bundle will allow you to perform javascript validation on Symfony forms without having to duplicate your efforts on the front-end and back-end. When using a REST API to submit your forms, you can bind error messages directly to the coresponding form element when you return a 400 error with a serialized form object that contains errors.
-
+This bundle is designed to validate Symfony forms on the front-end without duplicating code or validation efforts. This plugin also fully supports translations for error messages and suggestion text.
 
 Installation
 ------------
@@ -40,7 +39,7 @@ public function registerBundles()
 }
 ```
 
-### Step 4: Set default form template
+### Step 4: Set default form theme
 
 Edit app/config.yml and set the default form template provided by the form-utils bundle.
 
@@ -57,51 +56,100 @@ Usage
 
 ### Add javascript & css dependencies
 
-Add the required javascript files. I recommend using assetic in your layout template:
+Add the assets provided in this bundle. I recommend using assetic.
 
 ```html
 {% javascripts 
-'@JJBFormUtilsBundle/Resources/assets/js/jquery.validator.js'
-'@JJBFormUtilsBundle/Resources/assets/js/jquery.validator.ajax-errors.js' %}
+'@JJBFormUtilsBundle/Resources/assets/js/jquery.validator.js' %}
 <script type="text/javascript" src="{{ asset_url }}"></script>
 {% endjavascripts %}
-```
 
-Add the required SASS file. I recommend using assetic in your layout template:
-
-```html
 {% stylesheets
 '@JJBFormUtilsBundle/Resources/assets/css/style.scss' filter='compass' %}
 <link rel="stylesheet" href="{{ asset_url }}"/>
 {% endstylesheets %}
 ```
+### Rendering Forms
+
+Rendering forms with twig is required. Data attributes are added to each form field that are populated with the form constraints and error messages. Without using the FormUtils template, form validation with this plugin will not work.
+
+```html
+{{ form_start(form) }}
+{{ form_errors(form) }}
+
+{{ form_row(form.username) }}
+{{ form_row(form.password) }}
+{{ form_row(form.submit) }}
+
+{{ form_end(form) }}
+```
+
+### Data Suggestions
+
+Data suggestions are used to provide information to the user about a form field. For example, if the form is focused on a password field, it might be helpful to show the user what characters are allowed in the password. To do this, you have to add an attribute to your form field called ```data-suggest```. This can be done in one of two ways.
+
+#### Form Method
+
+This method uses the "attr" option in the form builder.
+
+```php
+public function buildForm(FormBuilderInterface $builder, array $options)
+{
+    $builder->add(
+        'password',
+        'password', [
+            'attr' => [
+                'data-suggest' => 'Must contain ...'
+            ],
+            'constraints' => [
+                new Assert\NotBlank()
+            ]
+        ]
+    );
+}
+```
+
+#### Twig Method
+
+This method adds the attribute directly to the form field.
+
+```html
+{{ form_row(form.password.second, { 'attr' : {
+    'data-suggest' : 'Must contain ...'
+}}) }}
+```
 
 ### Bind validator to form
 
 ```js
-$(document).ready(){
-    $('#myForm').validator();
-}
+var form = $('#myForm');
+    
+// Enable validation
+$(form).validator([options]);
 ```
 
 In some cases, event propagation will be stopped before the validation listeners are triggered. In this case, you will need to manually execute to validator on your form. To do this, just use the following syntax:
 
 ```js
-if ($('#myForm').validator('validate')) {
+if ($(form).validator('validate'[, options])) {
     // Do something
 }
 ```
 
 ### Handle AJAX Errors
 
+This jQuery plugin is designed to handle serialized form errors from Symfony. When the form object is serialized (e.g. from a Symfony controller), Symfony will return a standard JSON payload with any errors that occurred. By looping over the keys and errors in the jQuery plugin, we can reliably map the errors back to the correct field after an AJAX request has occurred.
+
 ```js
-$('#myForm').ajaxForm({
+// Submit form using jQuery Form Plugin
+$(form).ajaxForm({
     url: '/path/to/rest/endpoint',
     success: function () {
         // Do something
     },
     error: function (response) {
-        $('#myForm').ajaxErrors(response);
+        // Bind errors in response to form fields
+        $(form).validator('handleErrors', response[, options]);
     }
 });
 ```
@@ -111,15 +159,8 @@ Validator Options
 
 | Key | Description | Default Value |
 | --- | ----------- | ------------- |
+| rootErrorMessage | Prepend root-level error with a title? (e.g. "Your form contains errors") ***Only work with AJAX errors*** | null |
 | continueOnError | Continue validation after an error occurs? | false |
-| suggestTemplate | Template used for data suggestions | {{message}} |
-| messageTemplate | Template used for error messages | {{message}} |
-
-AJAX Errors Options
--------------------
-
-| Key | Description | Default Value |
-| --- | ----------- | ------------- |
-| rootErrorMessage | Prepend root-level error with a title? (e.g. "Your form contains errors") | null |
 | separator | Character used to concatenate form id's. | _ |
+| suggestTemplate | Template used for data suggestions | {{message}} |
 | messageTemplate | Template used for error messages | {{message}} |
