@@ -54,7 +54,7 @@ twig:
 Usage
 -----
 
-### Add javascript & css dependencies
+### Assets
 
 Add the assets provided in this bundle. I recommend using assetic.
 
@@ -159,7 +159,7 @@ Validator Options
 
 | Key | Description | Default Value |
 | --- | ----------- | ------------- |
-| rootErrorMessage | Prepend root-level error with a title? (e.g. "Your form contains errors") ***Only work with AJAX errors*** | null |
+| rootErrorMessage | Prepend root-level error with a title? (e.g. "Your form contains errors") ***Only works with AJAX errors*** | null |
 | continueOnError | Continue validation after an error occurs? | false |
 | separator | Character used to concatenate form id's. | _ |
 | suggestTemplate | Template used for data suggestions | {{message}} |
