@@ -1,10 +1,20 @@
 services:
-    jjb.formUtilsBundle.twig.extension.addJsConstraints:
+    jjb.form_utils.twig.extension.add_js_constraints:
         class: JJB\FormUtilsBundle\Twig\JSConstraintExtension
-        arguments: [@jjb.formUtilsBundle.service.js_constraint]
+        arguments: [@jjb.form_utils.service.js_constraint]
         tags:
             - { name: twig.extension, alias: add_js_constraints }
 
-    jjb.formUtilsBundle.service.js_constraint:
+    jjb.form_utils.service.js_constraint:
         class: JJB\FormUtilsBundle\Service\JSConstraintService
         arguments: [@translator.default]
+
+    jjb.form_utils.service.meta_data_constraint:
+        class: JJB\FormUtilsBundle\Service\MetaDataConstraintService
+        arguments: [@validator]
+
+#    jjb.form_utils_bundle.event_listener.constraint_listener:
+#        class: JJB\FormUtilsBundle\EventListener\ConstraintListener
+#        arguments: [@service_container]
+#        tags:
+#            - { name: kernel.event_listener, event: 'jjb.form.complete', method: 'onFormComplete' }
