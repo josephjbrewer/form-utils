@@ -263,11 +263,14 @@
     };
 
     var clearErrors = function () {
-        $(config.formObj).find('[data-validation-for]').html('').addClass('hide');
+        $(config.formObj).find('[data-validation-for]').each(function () {
+            $(this).html('').addClass('hide');
+            $('#' + $(this).attr('data-validation-for')).removeClass('error');
+        });
     };
 
     var showSuggestText = function (element) {
-        var text = $(element).data('suggest')
+        var text = $(element).data('suggest');
 
         if (text != undefined && text != '') {
             var html = formatSuggestTemplate(text);
