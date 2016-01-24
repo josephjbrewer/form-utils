@@ -3,9 +3,10 @@
         /**
          * Continue validation after an error occurs?
          *
-         * @var bool
+         * @var boolean
          */
         continueOnError: false,
+
         /**
          *
          * Set a header for the root-level form errors. Value can contain HTML or raw text
