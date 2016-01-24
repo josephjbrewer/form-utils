@@ -5,7 +5,7 @@ This bundle is designed to validate Symfony forms on the front-end without dupli
 Installation
 ------------
 
-### Step 1: Add Repository to composer
+### Add Repository to composer
 
 Edit your composer.json file and add the following repository:
 
@@ -20,13 +20,13 @@ Edit your composer.json file and add the following repository:
 ]
 ```
 
-### Step 2: Require composer package
+### Require composer package
 
 ```
 composer require josephjbrewer/form-utils dev-develop
 ```
 
-### Step 3: Enable the bundle
+### Enable the bundle
 
 ```php
 // app/AppKernel.php
@@ -39,7 +39,7 @@ public function registerBundles()
 }
 ```
 
-### Step 4: Set default form theme
+### Set default form theme
 
 Edit app/config.yml and set the default form template provided by the form-utils bundle.
 
@@ -69,9 +69,21 @@ Add the assets provided in this bundle. I recommend using assetic.
 <link rel="stylesheet" href="{{ asset_url }}"/>
 {% endstylesheets %}
 ```
+### Overriding the form theme
+
+By default, the provided form template uses the bootstrap theme provided by Symfony. This can be easily changed by making your own form theme and extending what is provided by this bundle.
+
+The example below uses Symfony's default form theme.
+
+```twig
+<!-- AppBundle/Resources/views/form-template.html.twig -->
+{% extends 'form_div_layout.html.twig' %}
+{% use 'JJBFormUtilsBundle:Form:form_blocks.html.twig' %}
+```
+
 ### Rendering Forms
 
-Rendering forms with twig is required. Data attributes are added to each form field that are populated with the form constraints and error messages. Without using the FormUtils template, form validation with this plugin will not work.
+In order for the form elements to render the data attributes required for validation, you will need to use twig to render the form fields.
 
 ```html
 {{ form_start(form) }}
@@ -88,7 +100,7 @@ Rendering forms with twig is required. Data attributes are added to each form fi
 
 Data suggestions are used to provide information to the user about a form field. For example, if the form is focused on a password field, it might be helpful to show the user what characters are allowed in the password. To do this, you have to add an attribute to your form field called ```data-suggest```. This can be done in one of two ways.
 
-#### Form Method
+#### With a form class
 
 This method uses the "attr" option in the form builder.
 
@@ -100,16 +112,13 @@ public function buildForm(FormBuilderInterface $builder, array $options)
         'password', [
             'attr' => [
                 'data-suggest' => 'Must contain ...'
-            ],
-            'constraints' => [
-                new Assert\NotBlank()
             ]
         ]
     );
 }
 ```
 
-#### Twig Method
+#### With twig attributes
 
 This method adds the attribute directly to the form field.
 
@@ -121,14 +130,16 @@ This method adds the attribute directly to the form field.
 
 ### Bind validator to form
 
+Binding the validator to the form sets up listeners on the form and all of its elements. When the blur event is triggered on a form element, the plugin will validate it. When the submit event is triggered on the form, the plugin will validate all of the form elements. If validation fails, event propagation will stop and the form will not be submitted.
+
 ```js
 var form = $('#myForm');
     
-// Enable validation
-$(form).validator([options]);
+// Enable validation (optional configuration)
+$(form).validator(options);
 ```
 
-In some cases, event propagation will be stopped before the validation listeners are triggered. In this case, you will need to manually execute to validator on your form. To do this, just use the following syntax:
+In some cases, event propagation will be stopped before the validation listeners are triggered. This can happen if other javascript plugins are also listening to the submit event on the form. If this happens, you will need to manually trigger validator on your form. To do this, just use the following syntax:
 
 ```js
 if ($(form).validator('validate'[, options])) {
@@ -138,19 +149,21 @@ if ($(form).validator('validate'[, options])) {
 
 ### Handle AJAX Errors
 
-This jQuery plugin is designed to handle serialized form errors from Symfony. When the form object is serialized (e.g. from a Symfony controller), Symfony will return a standard JSON payload with any errors that occurred. By looping over the keys and errors in the jQuery plugin, we can reliably map the errors back to the correct field after an AJAX request has occurred.
+One of the reasons this bundle was developed is to help with binding errors that occur on the server-side to the form elements on the front-end. When validation fails on the server side, an error object is created. To handle AJAX errors on the front-end, return the serialized error object and the plugin will do the rest.
 
 ```js
-// Submit form using jQuery Form Plugin
-$(form).ajaxForm({
-    url: '/path/to/rest/endpoint',
-    success: function () {
-        // Do something
-    },
-    error: function (response) {
-        // Bind errors in response to form fields
-        $(form).validator('handleErrors', response[, options]);
-    }
+$(form).validator('handleErrors', response[, options]);
+```
+
+### Formatting Errors & Data Suggestions
+
+Formatting errors and data suggestions is as simple as providing an inline template. The `messageTemplate` key is used for errors and the `suggestTemplate` key is used for data suggestions.
+
+```js
+$(document).ready(function() {
+    $('#myForm').validator({
+        messageTemplate: '<i class="fa fa-exclamation-triangle"></i> {{message}}'
+    });
 });
 ```
 
@@ -164,3 +177,48 @@ Validator Options
 | separator | Character used to concatenate form id's. | _ |
 | suggestTemplate | Template used for data suggestions | {{message}} |
 | messageTemplate | Template used for error messages | {{message}} |
+
+Advanced Usage
+--------------
+
+### Supporting YAML/XML/Annotation Constraints
+
+In a lot of cases, developers will use annotations or yaml/xml files to add constraints to a model. When a form is validated in Symfony, these constraints are validated along with any constraints added to the form.
+
+If you instantiate a form that extends `AbstractBaseForm` with `MetaDataConstraintService` then the form will add the yaml/xml/annotation constraints to the form object when building the form view.
+
+#### Create the form class
+
+```php
+<?php
+
+namespace ApiBundle\Form\Type;
+
+use JJB\FormUtilsBundle\Form\Type\AbstractBaseForm;
+
+class ExampleType extends AbstractBaseForm
+{
+   // ...
+}
+```
+
+#### Instantiate form with metadata constraint service
+
+```php
+<?php
+
+namespace AppBundle\Controller;
+
+class DefaultController
+{
+    public function someAction()
+    {
+        $service = $this->get('jjb.form_utils.service.meta_data_constraint');
+        $form    = $this->createForm(new ExampleType($service));
+         
+        return $this->render('...', [
+            'form' => $form->createView()
+        ]);
+    }
+}
+```
