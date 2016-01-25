@@ -1,23 +1,22 @@
 {
-  "name": "josephjbrewer/form-utils",
-  "description": "Symfony2 Form Stuff",
-  "minimum-stability": "1.0",
-  "license": "MIT",
-  "type": "library",
-  "require": {
-    "php": ">=5.5.0",
-    "symfony/symfony" : "^2.7.0",
-    "symfony/assetic-bundle": "~2.3"
-  },
-  "authors": [
-    {
-      "name": "Joseph J Brewer"
-    }
-  ],
-  "autoload": {
-    "psr-0": {
-      "JJB\\FormUtilsBundle": ""
-    }
-  },
-  "target-dir": "JJB/FormUtilsBundle"
+    "name": "josephjbrewer/form-utils",
+    "description": "Symfony2 Form Stuff",
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": ">=5.5.0",
+        "symfony/symfony": "^2.7.0",
+        "symfony/assetic-bundle": "~2.3"
+    },
+    "authors": [
+        {
+            "name": "Joseph J Brewer"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "JJB\\FormUtilsBundle": ""
+        }
+    },
+    "target-dir": "JJB/FormUtilsBundle"
 }
