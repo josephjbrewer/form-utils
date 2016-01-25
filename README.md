@@ -5,21 +5,6 @@ This bundle is designed to validate Symfony forms on the front-end without dupli
 Installation
 ------------
 
-### Add Repository to composer
-
-Edit your composer.json file and add the following repository:
-
-```
-"repositories": [
-  ...
-  {
-    "type": "vcs",
-    "url": "git@bitbucket.org:josephjbrewer/form-utils.git"
-  },
-  ...
-]
-```
-
 ### Require composer package
 
 ```
