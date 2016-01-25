@@ -8,7 +8,7 @@ Installation
 ### Require composer package
 
 ```
-composer require josephjbrewer/form-utils dev-develop
+composer require josephjbrewer/form-utils
 ```
 
 ### Enable the bundle

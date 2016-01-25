@@ -1,6 +1,6 @@
 {
     "name": "josephjbrewer/form-utils",
-    "description": "Symfony2 Form Stuff",
+    "description": "Front-end form validation utilities for Symfony2 integration.",
     "license": "MIT",
     "type": "library",
     "require": {
