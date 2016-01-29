@@ -31,8 +31,10 @@ abstract class AbstractBaseForm extends AbstractType
      */
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
-        if ($this->metaDataConstraintService instanceof MetaDataConstraintService) {
-            $this->metaDataConstraintService->mergeConstraints($form);
+        if (!$form->isSubmitted()) {
+            if ($this->metaDataConstraintService instanceof MetaDataConstraintService) {
+                $this->metaDataConstraintService->mergeConstraints($form);
+            }
         }
     }
 }

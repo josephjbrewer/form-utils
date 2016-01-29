@@ -38,12 +38,25 @@ class JSConstraintExtension extends \Twig_Extension
     public function addJsConstraints($form, array $constraints = [], array $attributes = [], $domain = null)
     {
         if (!empty($constraints)) {
+            $tests    = [];
+            $messages = [];
+
             foreach ($constraints as $constraint) {
                 if (!$constraint instanceof Constraint) {
                     throw new \Exception("The constraint provided for " . $form->vars['id'] . " is not an instance of Constraint. Please make sure you did not nest an array");
                 }
 
-                list ($tests, $messages) = $this->jsConstraintService->extractConstraints($form, $constraint, $domain);
+                list ($_tests, $_messages) = $this->jsConstraintService->extractConstraints($form, $constraint, $domain);
+
+                if (is_array($_tests)) {
+                    foreach ($_tests as $key => $test) {
+                        $tests[]    = $_tests[ $key ];
+                        $messages[] = $_messages[ $key ];
+                    }
+                } else {
+                    $tests[]    = $_tests;
+                    $messages[] = $_messages;
+                }
 
             }
 

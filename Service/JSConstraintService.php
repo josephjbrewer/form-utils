@@ -60,8 +60,8 @@ class JSConstraintService
      */
     protected function constraintNotBlank(Constraints\NotBlank $constraint, $domain = null)
     {
-        $tests[]    = "__NOT_BLANK__";
-        $messages[] = $this->trans($constraint->message, [], $domain);
+        $tests    = "__NOT_BLANK__";
+        $messages = $this->trans($constraint->message, [], $domain);
 
         return [$tests, $messages];
     }
@@ -73,8 +73,8 @@ class JSConstraintService
      */
     protected function constraintLuhn(Constraints\Luhn $constraint, $domain = null)
     {
-        $tests[]    = '__LUHN__';
-        $messages[] = $this->trans($constraint->message, [], $domain);
+        $tests    = '__LUHN__';
+        $messages = $this->trans($constraint->message, [], $domain);
 
         return [$tests, $messages];
     }
@@ -86,8 +86,8 @@ class JSConstraintService
      */
     protected function constraintRegex(Constraints\Regex $constraint, $domain = null)
     {
-        $tests[]    = trim($constraint->pattern, '/');
-        $messages[] = $this->trans($constraint->message, [], $domain);
+        $tests    = trim($constraint->pattern, '/');
+        $messages = $this->trans($constraint->message, [], $domain);
 
         return [$tests, $messages];
     }
@@ -99,8 +99,8 @@ class JSConstraintService
      */
     protected function constraintEmail(Constraints\Email $constraint, $domain = null)
     {
-        $tests[]    = "^.+\@\S+\.\S+$";
-        $messages[] = $this->trans($constraint->message, [], $domain);
+        $tests    = "^.+\@\S+\.\S+$";
+        $messages = $this->trans($constraint->message, [], $domain);
 
         return [$tests, $messages];
     }
@@ -112,8 +112,8 @@ class JSConstraintService
      */
     protected function constraintDate(Constraints\Date $constraint, $domain = null)
     {
-        $tests[]    = '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
-        $messages[] = $this->trans($constraint->message, [], $domain);
+        $tests    = '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
+        $messages = $this->trans($constraint->message, [], $domain);
 
         return [$tests, $messages];
     }
@@ -125,8 +125,8 @@ class JSConstraintService
      */
     protected function constraintTime(Constraints\Time $constraint, $domain = null)
     {
-        $tests[]    = '^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$';
-        $messages[] = $this->trans($constraint->message, [], $domain);
+        $tests    = '^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$';
+        $messages = $this->trans($constraint->message, [], $domain);
 
         return [$tests, $messages];
     }
@@ -138,8 +138,8 @@ class JSConstraintService
      */
     protected function constraintDateTime(Constraints\DateTime $constraint, $domain = null)
     {
-        $tests[]    = '^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}\:[0-9]{2}\:[0-9]{2}$';
-        $messages[] = $this->trans($constraint->message, [], $domain);
+        $tests    = '^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}\:[0-9]{2}\:[0-9]{2}$';
+        $messages = $this->trans($constraint->message, [], $domain);
 
         return [$tests, $messages];
     }
@@ -151,8 +151,8 @@ class JSConstraintService
      */
     protected function constraintEqualTo(Constraints\EqualTo $constraint, $domain = null)
     {
-        $tests[]    = '^' . $constraint->value . '$';
-        $messages[] = preg_replace(
+        $tests    = '^' . $constraint->value . '$';
+        $messages = preg_replace(
             '/\{\{\s?compared_value\s?\}\}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
@@ -168,8 +168,8 @@ class JSConstraintService
      */
     protected function constraintNotEqualTo(Constraints\NotEqualTo $constraint, $domain = null)
     {
-        $tests[]    = '^(?!' . $constraint->value . ').+$';
-        $messages[] = preg_replace(
+        $tests    = '^(?!' . $constraint->value . ').+$';
+        $messages = preg_replace(
             '/\{\{\s?compared_value\s?\}\}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
@@ -185,8 +185,8 @@ class JSConstraintService
      */
     protected function constraintGreaterThan(Constraints\GreaterThan $constraint, $domain = null)
     {
-        $tests[]    = '__({{value}} > ' . $constraint->value . ')__';
-        $messages[] = preg_replace(
+        $tests    = '__({{value}} > ' . $constraint->value . ')__';
+        $messages = preg_replace(
             '/\{\{\s?compared_value\s?\}\}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
@@ -202,8 +202,8 @@ class JSConstraintService
      */
     protected function constraintLessThan(Constraints\LessThan $constraint, $domain = null)
     {
-        $tests[]    = '__({{value}} < ' . $constraint->value . ')__';
-        $messages[] = preg_replace(
+        $tests    = '__({{value}} < ' . $constraint->value . ')__';
+        $messages = preg_replace(
             '/\{\{\s?compared_value\s?\}\}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
@@ -219,8 +219,8 @@ class JSConstraintService
      */
     protected function constraintGreaterThanOrEqual(Constraints\GreaterThanOrEqual $constraint, $domain = null)
     {
-        $tests[]    = '__({{value}} >= ' . $constraint->value . ')__';
-        $messages[] = preg_replace(
+        $tests    = '__({{value}} >= ' . $constraint->value . ')__';
+        $messages = preg_replace(
             '/\{\{\s?compared_value\s?\}\}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
@@ -236,8 +236,8 @@ class JSConstraintService
      */
     protected function constraintLessThanOrEqual(Constraints\LessThanOrEqual $constraint, $domain = null)
     {
-        $tests[]    = '__({{value}} <= ' . $constraint->value . ')__';
-        $messages[] = preg_replace(
+        $tests    = '__({{value}} <= ' . $constraint->value . ')__';
+        $messages = preg_replace(
             '/\{\{\s?compared_value\s?\}\}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
@@ -253,8 +253,8 @@ class JSConstraintService
      */
     protected function constraintIp(Constraints\Ip $constraint, $domain = null)
     {
-        $tests[]    = '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$';
-        $messages[] = $this->trans($constraint->message, [], $domain);
+        $tests    = '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$';
+        $messages = $this->trans($constraint->message, [], $domain);
 
         return [$tests, $messages];
     }
@@ -266,8 +266,8 @@ class JSConstraintService
      */
     protected function constraintUrl(Constraints\Url $constraint, $domain = null)
     {
-        $tests[]    = '^(https?:\/\/)([\d\w]+)\.?([\d\w\-_]+)?\.([\d\w\-_]+\.([a-z0-9]{2,6}))(.*)$';
-        $messages[] = $this->trans($constraint->message, [], $domain);
+        $tests    = '^(https?:\/\/)([\d\w]+)\.?([\d\w\-_]+)?\.([\d\w\-_]+\.([a-z0-9]{2,6}))(.*)$';
+        $messages = $this->trans($constraint->message, [], $domain);
 
         return [$tests, $messages];
     }
