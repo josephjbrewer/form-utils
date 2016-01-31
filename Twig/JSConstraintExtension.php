@@ -3,6 +3,7 @@
 namespace JJB\FormUtilsBundle\Twig;
 
 use JJB\FormUtilsBundle\Service\JSConstraintService;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints;
 
@@ -19,33 +20,43 @@ class JSConstraintExtension extends \Twig_Extension
         $this->jsConstraintService = $jsConstraintService;
     }
 
-    public function getFilters()
+    public function getFunctions()
     {
         return [
-            new \Twig_SimpleFilter('add_js_constraints', [$this, 'addJsConstraints'])
+            new \Twig_SimpleFunction('add_js_constraints', [$this, 'addJsConstraints'])
         ];
     }
 
     /**
-     * @param string $fieldName
-     * @param array $attributes
+     * @param FormView $form
      * @param Constraint[] $constraints
+     * @param array $attributes
      * @param null|string $domain
      * @return string
      * @throws \Exception
      */
-    public function addJsConstraints($fieldName, array $attributes, array $constraints = [], $domain = null)
+    public function addJsConstraints($form, array $constraints = [], array $attributes = [], $domain = null)
     {
-        $tests    = [];
-        $messages = [];
-
         if (!empty($constraints)) {
+            $tests    = [];
+            $messages = [];
+
             foreach ($constraints as $constraint) {
                 if (!$constraint instanceof Constraint) {
-                    throw new \Exception("The constraint provided for '{$fieldName}' is not an instance of Constraint. Please make sure you did not nest an array");
+                    throw new \Exception("The constraint provided for " . $form->vars['id'] . " is not an instance of Constraint. Please make sure you did not nest an array");
                 }
 
-                list ($tests, $messages) = $this->jsConstraintService->extractConstraints($constraint, $domain, $tests, $messages);
+                list ($_tests, $_messages) = $this->jsConstraintService->extractConstraints($form, $constraint, $domain);
+
+                if (is_array($_tests)) {
+                    foreach ($_tests as $key => $test) {
+                        $tests[]    = $_tests[ $key ];
+                        $messages[] = $_messages[ $key ];
+                    }
+                } else {
+                    $tests[]    = $_tests;
+                    $messages[] = $_messages;
+                }
 
             }
 

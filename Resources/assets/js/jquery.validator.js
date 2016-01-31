@@ -73,6 +73,30 @@
         },
         "NotBlank": function (val) {
             return (val.trim() !== "");
+        },
+        "Luhn": function (value) {
+            var nCheck = 0;
+            var bEven = false;
+
+            if (/[^0-9-\s]+/.test(value)) {
+                return false;
+            }
+
+            value = value.replace(/\D/g, "");
+
+            for (var n = value.length - 1; n >= 0; n--) {
+                var cDigit = value.charAt(n),
+                    nDigit = parseInt(cDigit, 10);
+
+                if (bEven) {
+                    if ((nDigit *= 2) > 9) nDigit -= 9;
+                }
+
+                nCheck += nDigit;
+                bEven = !bEven;
+            }
+
+            return (nCheck % 10) == 0;
         }
     };
 
@@ -208,7 +232,7 @@
 
         clearErrors();
 
-        $(form).find('input,select,textarea').each(function (idx, element) {
+        $(form).find('[data-constraints]').each(function (idx, element) {
             if (!validateElement(element)) {
                 hasErrors = true;
             }
@@ -226,8 +250,7 @@
         // Skip validation on this field
         if (element.attr('data-ignore-validation') ||
             element.attr('disabled') ||
-            element.attr('readonly') ||
-            (!required && element.val() == '')
+            element.attr('readonly')
         ) {
             hideErrors(element);
             return true;
@@ -243,11 +266,16 @@
             messages = JSON.parse(messages);
 
             $.each(constraints, function (idx, constraint) {
-                if (!validate(element, constraint)) {
-                    errors.push(messages[idx]);
 
-                    // Break loop
-                    return config.continueOnError;
+                // Count constraints will sometimes be added to div tags (e.g. checkbox groups).
+                // It is the only scenario where we want to validate a div tag (it's children, actually).
+                if (constraint.match(/^COUNT(.*)$/) || $(el).prop('tagName') != 'DIV') {
+                    if (!validate(element, constraint)) {
+                        errors.push(messages[idx]);
+
+                        // Break loop
+                        return config.continueOnError;
+                    }
                 }
             });
 
@@ -316,7 +344,9 @@
             "__LUHN__": "Luhn"
         };
 
-        if (expression && expression.length >= 2 && value != '') {
+        if (assertion.match(/^COUNT(.*)$/)) {
+            return countChoiceElements(element, assertion);
+        } else if (expression && expression.length >= 2 && value != '') {
             return constraints.Expression(value, expression[1].replace('{{value}}', element.val()));
 
         } else if (generic) {
@@ -330,6 +360,62 @@
             }
         } else {
             return constraints.Regex(value, assertion);
+        }
+
+        return true;
+    };
+
+    var countChoiceElements = function (element, assertion) {
+        var match = assertion.match(/^COUNT\((.*)\)$/);
+
+        if (match.length > 1) {
+            var string = match[1];
+            var parts = string.split('|');
+
+            if (parts.length == 3) {
+                var selector = parts[0];
+                var min = parts[1];
+                var max = parts[2];
+                var count = 0;
+                var type = $(selector).attr('type');
+                var tag = $(selector).prop('tagName');
+
+                if (tag != undefined) {
+                    if (tag.toUpperCase() == 'DIV') {
+                        $.each($(selector).find('input[type="checkbox"]'), function (idx, el) {
+                            if ($(el).is(':checked')) {
+                                count++;
+                            }
+                        });
+                    } else if (tag.toUpperCase() == 'SELECT') {
+                        $.each($(selector).find('option'), function (idx, el) {
+                            if ($(el).is(':selected')) {
+                                count++;
+                            }
+                        });
+                    }
+                }
+
+                if (min > 0 && min == max) {
+                    if (count != min) {
+                        return false;
+                    }
+                } else {
+                    if (min > 0) {
+                        if (count < min) {
+                            return false;
+                        }
+                    }
+
+                    if (max > 0) {
+                        if (count < max) {
+                            return false;
+                        }
+                    }
+                }
+            } else {
+                throw "Invalid format for count constraint";
+            }
         }
 
         return true;
