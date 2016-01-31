@@ -153,7 +153,7 @@ class JSConstraintService
     {
         $tests    = '^' . $constraint->value . '$';
         $messages = preg_replace(
-            '/\{\{\s?compared_value\s?\}\}/',
+            '/{{\s?compared_value\s?}}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
         );
@@ -170,7 +170,7 @@ class JSConstraintService
     {
         $tests    = '^(?!' . $constraint->value . ').+$';
         $messages = preg_replace(
-            '/\{\{\s?compared_value\s?\}\}/',
+            '/{{\s?compared_value\s?}}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
         );
@@ -187,7 +187,7 @@ class JSConstraintService
     {
         $tests    = '__({{value}} > ' . $constraint->value . ')__';
         $messages = preg_replace(
-            '/\{\{\s?compared_value\s?\}\}/',
+            '/{{\s?compared_value\s?}}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
         );
@@ -204,7 +204,7 @@ class JSConstraintService
     {
         $tests    = '__({{value}} < ' . $constraint->value . ')__';
         $messages = preg_replace(
-            '/\{\{\s?compared_value\s?\}\}/',
+            '/{{\s?compared_value\s?}}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
         );
@@ -221,7 +221,7 @@ class JSConstraintService
     {
         $tests    = '__({{value}} >= ' . $constraint->value . ')__';
         $messages = preg_replace(
-            '/\{\{\s?compared_value\s?\}\}/',
+            '/{{\s?compared_value\s?}}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
         );
@@ -238,10 +238,31 @@ class JSConstraintService
     {
         $tests    = '__({{value}} <= ' . $constraint->value . ')__';
         $messages = preg_replace(
-            '/\{\{\s?compared_value\s?\}\}/',
+            '/{{\s?compared_value\s?}}/',
             $constraint->value,
             $this->trans($constraint->message, [], $domain)
         );
+
+        return [$tests, $messages];
+    }
+
+    /**
+     * @param Constraints\Range $constraint
+     * @param null $domain
+     * @return array
+     */
+    protected function constraintRange(Constraints\Range $constraint, $domain = null)
+    {
+        $tests[]    = '^[0-9]+$';
+        $messages[] = $this->trans($constraint->invalidMessage, [], $domain);
+
+        $tests[]    = '__({{value}} >= ' . $constraint->min . ')__';
+        $msg        = $this->trans($constraint->minMessage, [], $domain, $constraint->min);
+        $messages[] = preg_replace('/{{\s?limit\s?}}/', $constraint->min, $msg);
+
+        $tests[]    = '__({{value}} <= ' . $constraint->max . ')__';
+        $msg        = $this->trans($constraint->maxMessage, [], $domain, $constraint->max);
+        $messages[] = preg_replace('/{{\s?limit\s?}}/', $constraint->max, $msg);
 
         return [$tests, $messages];
     }
@@ -288,18 +309,18 @@ class JSConstraintService
         ) {
             $tests[]    = '^.{' . $constraint->min . ',' . $constraint->max . '}$';
             $_msg       = $this->trans($constraint->exactMessage, [], $domain, $constraint->min);
-            $messages[] = preg_replace('/\{\{\s?limit\s?\}\}/', $constraint->min, $_msg);
+            $messages[] = preg_replace('/{{\s?limit\s?}}/', $constraint->min, $_msg);
         } else {
             if ($constraint->min > 0) {
                 $tests[]    = '.{' . $constraint->min . ',}';
                 $_msg       = $this->trans($constraint->minMessage, [], $domain, $constraint->min);
-                $messages[] = preg_replace('/\{\{\s?limit\s?\}\}/', $constraint->min, $_msg);
+                $messages[] = preg_replace('/{{\s?limit\s?}}/', $constraint->min, $_msg);
             }
 
             if ($constraint->max > 0) {
                 $tests[]    = '^.{0,' . $constraint->max . '}$';
                 $_msg       = $this->trans($constraint->maxMessage, [], $domain, $constraint->max);
-                $messages[] = preg_replace('/\{\{\s?limit\s?\}\}/', $constraint->max, $_msg);
+                $messages[] = preg_replace('/{{\s?limit\s?}}/', $constraint->max, $_msg);
             }
         }
 
@@ -322,20 +343,20 @@ class JSConstraintService
             $constraint->min > 0 && $constraint->max > 0 &&
             ($constraint->min === $constraint->max)
         ) {
-            $tests[]    = 'COUNT(#' . $selector . '|' . $constraint->min . ')';
+            $tests[]    = 'COUNT(#' . $selector . '|' . $constraint->min . '|' . $constraint->max . ')';
             $_msg       = $this->trans($constraint->exactMessage, [], $domain, $constraint->min);
-            $messages[] = preg_replace('/\{\{\s?limit\s?\}\}/', $constraint->min, $_msg);
+            $messages[] = preg_replace('/{{\s?limit\s?}}/', $constraint->min, $_msg);
         } else {
             if ($constraint->min > 0) {
                 $tests[]    = 'COUNT(#' . $selector . '|' . $constraint->min . '|0)';
                 $_msg       = $this->trans($constraint->minMessage, [], $domain, $constraint->min);
-                $messages[] = preg_replace('/\{\{\s?limit\s?\}\}/', $constraint->min, $_msg);
+                $messages[] = preg_replace('/{{\s?limit\s?}}/', $constraint->min, $_msg);
             }
 
             if ($constraint->max > 0) {
                 $tests[]    = 'COUNT(#' . $selector . '|0|' . $constraint->max . ')';
                 $_msg       = $this->trans($constraint->maxMessage, [], $domain, $constraint->max);
-                $messages[] = preg_replace('/\{\{\s?limit\s?\}\}/', $constraint->max, $_msg);
+                $messages[] = preg_replace('/{{\s?limit\s?}}/', $constraint->max, $_msg);
             }
         }
 
