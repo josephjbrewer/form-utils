@@ -25,17 +25,10 @@ div.root-error-container {
   }
 }
 
-.form-control {
-  &.error {
-    border: 1px solid #990000;
-    background: #f9f3f3;
-  }
-}
-
 input,
 select,
 textarea {
-  .error {
+  &.error {
     border: 1px solid #990000;
     background: #f9f3f3;
   }

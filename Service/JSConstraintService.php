@@ -60,7 +60,7 @@ class JSConstraintService
      */
     protected function constraintNotBlank(Constraints\NotBlank $constraint, $domain = null)
     {
-        $tests    = "__NOT_BLANK__";
+        $tests    = ".+";
         $messages = $this->trans($constraint->message, [], $domain);
 
         return [$tests, $messages];
