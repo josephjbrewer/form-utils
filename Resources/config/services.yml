@@ -12,9 +12,3 @@ services:
     jjb.form_utils.service.meta_data_constraint:
         class: JJB\FormUtilsBundle\Service\MetaDataConstraintService
         arguments: [@validator]
-
-#    jjb.form_utils_bundle.event_listener.constraint_listener:
-#        class: JJB\FormUtilsBundle\EventListener\ConstraintListener
-#        arguments: [@service_container]
-#        tags:
-#            - { name: kernel.event_listener, event: 'jjb.form.complete', method: 'onFormComplete' }
