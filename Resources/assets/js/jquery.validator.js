@@ -37,6 +37,34 @@
         formObj: null,
 
         /**
+         * Class applied to form elements that have validation errors
+         *
+         * @var string
+         */
+        errorClass: 'error',
+
+        /**
+         * Class applied to form elements that have been successfully validated
+         *
+         * @var string
+         */
+        successClass: 'success',
+
+        /**
+         * Class used for hiding elements
+         *
+         * @var string
+         */
+        hideClass: 'hide',
+
+        /**
+         * Class used for data suggestions
+         *
+         * @var string
+         */
+        suggestClass: 'suggest',
+
+        /**
          * A template for your input suggestions. Can contain HTML.
          *
          * NOTE: You MUST use {{message}} in the template of the error message will not be rendered
@@ -230,11 +258,11 @@
 
             $(config.formObj).on('focus', 'input,select,textarea', function () {
                 showSuggestText(this);
-            }).on('blur', 'input,select,textarea', function (e) {
+            }).on('blur', 'input,select,textarea', function () {
                 hideSuggestText(this);
-                return validateElement(this, e);
-            }).on('change', 'input,select,textarea', function (e) {
-                return validateElement(this, e);
+                return validateElement(this);
+            }).on('change', 'input,select,textarea', function () {
+                return validateElement(this);
             });
         }
 
@@ -292,13 +320,13 @@
                 html += formatMessageTemplate(error);
             });
 
-            $(config.formObj).find('[data-validation-for="' + key + '"]').removeClass('hide').html(html);
+            $(config.formObj).find('[data-validation-for="' + key + '"]').removeClass(config.hideClass).html(html);
         });
 
         // Add optional title to root-level error message block
         if (config.rootErrorMessage) {
             var title = formatMessageTemplate(config.rootErrorMessage, 'title');
-            $(config.formObj).find('[data-validation-for="' + config.formPrefix + '"]').removeClass('hide').prepend(title);
+            $(config.formObj).find('[data-validation-for="' + config.formPrefix + '"]').removeClass(config.hideClass).prepend(title);
         }
     };
 
@@ -326,10 +354,9 @@
      * Validates a single form field/group
      *
      * @param el
-     * @param event
      * @returns {boolean}
      */
-    var validateElement = function (el, event) {
+    var validateElement = function (el) {
 
         var element = $(el);
         var errors = [];
@@ -414,40 +441,71 @@
         return true;
     };
 
+    /**
+     * Shows suggest test for an individual form element
+     *
+     * @param element
+     */
     var showSuggestText = function (element) {
-        var text = $(element).data('suggest');
+        var text = $(element).data(config.suggestClass);
 
         if (text != undefined && text != '') {
             var html = formatSuggestTemplate(text);
-            $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', 'suggest').html(html);
+            $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', config.suggestClass).html(html);
         }
     };
+
+    /**
+     * Hides suggest text for an individual form element
+     *
+     * @param element
+     */
     var hideSuggestText = function (element) {
-        $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', 'error hide').html('');
+        $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', config.errorClass + ' ' + config.hideClass).html('');
     };
 
+    /**
+     * Hide errors for individual form element
+     *
+     * @param element
+     */
     var hideErrors = function (element) {
-        $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').addClass('hide');
-        $(element).removeClass('error').addClass('success');
+        $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').addClass(config.hideClass);
+        $(element).removeClass(config.errorClass).addClass(config.successClass);
     };
 
+    /**
+     * Show errors for individual form element
+     *
+     * @param element
+     * @param errors
+     */
     var showErrors = function (element, errors) {
         var alert = $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]');
 
         if (alert != undefined) {
-            alert.removeClass('hide');
+            alert.removeClass(config.hideClass);
             alert.html(formatErrors(errors));
-            $(element).addClass('error').removeClass('success');
+            $(element).addClass(config.errorClass).removeClass(config.successClass);
         }
     };
 
+    /**
+     * Empties and hides all error messages
+     */
     var clearErrors = function () {
         $(config.formObj).find('[data-validation-for]').each(function () {
-            $(this).html('').addClass('hide');
+            $(this).html('').addClass(config.hideClass);
             $('#' + $(this).attr('data-validation-for')).removeClass('error');
         });
     };
 
+    /**
+     * Formats errors
+     *
+     * @param errors
+     * @returns {string}
+     */
     var formatErrors = function (errors) {
         var html = '';
 

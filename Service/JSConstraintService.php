@@ -14,7 +14,11 @@ class JSConstraintService
      */
     private $translator;
 
-
+    /**
+     * JSConstraintService constructor.
+     *
+     * @param Translator $translator
+     */
     public function __construct(Translator $translator)
     {
         $this->translator = $translator;
@@ -37,7 +41,6 @@ class JSConstraintService
         $constraintName = basename(str_replace('\\', '/', get_class($constraint)));
         $methodName     = 'constraint' . $constraintName;
 
-        // Check to see if constraint type is supported
         if (method_exists($this, $methodName)) {
             switch ($constraintName) {
                 case "Count":
