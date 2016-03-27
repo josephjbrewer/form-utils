@@ -4,9 +4,7 @@
     "license": "MIT",
     "type": "library",
     "require": {
-        "php": ">=5.5.0",
-        "symfony/symfony": "^2.7.0",
-        "symfony/assetic-bundle": "~2.3"
+        "php": ">=5.5.0"
     },
     "authors": [
         {
