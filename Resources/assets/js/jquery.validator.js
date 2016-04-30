@@ -213,7 +213,7 @@
         config.formPrefix = $(config.formObj).attr('id');
         config.errors = {};
 
-        if ($(config.formObj).prop('tagName') !== 'FORM') {
+        if ($(config.formObj).prop('tagName').toUpperCase() !== 'FORM') {
             throw "Root element must be a form";
         }
 
@@ -360,7 +360,6 @@
 
         var element = $(el);
         var errors = [];
-        var required = ( $(el).attr('required') ) ? true : false;
 
         // Skip validation on this field
         if (element.attr('data-ignore-validation') ||
@@ -409,6 +408,9 @@
     /**
      * Executes a constraint's validation method
      *
+     * returns true if validation passed
+     * returns false if validation fails
+     *
      * @param element
      * @param assertion
      * @returns {*}
@@ -417,25 +419,33 @@
         var value = element.val();
         var expression = assertion.match(/^__\((.*)\)__$/);
         var generic = assertion.match(/__([_a-zA-Z0-9]+)__/g);
+        var required = ( $(element).attr('required') ) ? true : false;
 
         if (assertion.match(/^COUNT(.*)$/)) {
             return constraints.Count(element, assertion);
 
-        } else if (expression && expression.length >= 2 && value != '') {
-            return constraints.Expression(value, expression[1].replace('{{value}}', element.val()));
+        } else {
+            // If a field is blank and not required, there is no need to validate
+            if (value == '' && !required) {
+                return true;
+            }
 
-        } else if (generic) {
-            if (config.map[assertion]) {
-                var methodName = config.map[assertion];
+            if (expression && expression.length >= 2) {
+                return constraints.Expression(value, expression[1].replace('{{value}}', element.val()));
 
-                if (typeof constraints[methodName] == 'function') {
-                    return constraints[methodName](value, assertion);
+            } else if (generic) {
+                if (config.map[assertion]) {
+                    var methodName = config.map[assertion];
+
+                    if (typeof constraints[methodName] == 'function') {
+                        return constraints[methodName](value, assertion);
+                    }
+                } else {
+                    throw "No method mapped to key \"" + assertion + "\"";
                 }
             } else {
-                throw "No method mapped to key \"" + assertion + "\"";
+                return constraints.Regex(value, assertion);
             }
-        } else {
-            return constraints.Regex(value, assertion);
         }
 
         return true;
