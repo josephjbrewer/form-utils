@@ -37,6 +37,34 @@
         formObj: null,
 
         /**
+         * Class applied to form elements that have validation errors
+         *
+         * @var string
+         */
+        errorClass: 'error',
+
+        /**
+         * Class applied to form elements that have been successfully validated
+         *
+         * @var string
+         */
+        successClass: 'success',
+
+        /**
+         * Class used for hiding elements
+         *
+         * @var string
+         */
+        hideClass: 'hide',
+
+        /**
+         * Class used for data suggestions
+         *
+         * @var string
+         */
+        suggestClass: 'suggest',
+
+        /**
          * A template for your input suggestions. Can contain HTML.
          *
          * NOTE: You MUST use {{message}} in the template of the error message will not be rendered
@@ -59,7 +87,25 @@
          *
          * @var Object
          */
-        errors: {}
+        errors: {},
+
+        /**
+         * User-defined constraint type methods.
+         *
+         * NOTE: When adding a constraint method, make sure you map it
+         *
+         * @var Object
+         */
+        constraints: {},
+
+        /**
+         * Maps a constraint key to a constraint method
+         *
+         * @var Object
+         */
+        map: {
+            "__LUHN__": "Luhn"
+        }
     };
 
     var constraints = {
@@ -70,9 +116,6 @@
             var pattern = new RegExp(assertion, 'g');
 
             return pattern.test(val);
-        },
-        "NotBlank": function (val) {
-            return (val.trim() !== "");
         },
         "Luhn": function (value) {
             var nCheck = 0;
@@ -97,6 +140,61 @@
             }
 
             return (nCheck % 10) == 0;
+        },
+        "Count": function (element, assertion) {
+            var match = assertion.match(/^COUNT\((.*)\)$/);
+
+            if (match.length > 1) {
+                var string = match[1];
+                var parts = string.split('|');
+
+                if (parts.length == 3) {
+                    var selector = parts[0];
+                    var min = parts[1];
+                    var max = parts[2];
+                    var count = 0;
+                    var type = $(selector).attr('type');
+                    var tag = $(selector).prop('tagName');
+
+                    if (tag != undefined) {
+                        if (tag.toUpperCase() == 'DIV') {
+                            $.each($(selector).find('input[type="checkbox"]'), function (idx, el) {
+                                if ($(el).is(':checked')) {
+                                    count++;
+                                }
+                            });
+                        } else if (tag.toUpperCase() == 'SELECT') {
+                            $.each($(selector).find('option'), function (idx, el) {
+                                if ($(el).is(':selected')) {
+                                    count++;
+                                }
+                            });
+                        }
+                    }
+
+                    if (min > 0 && min == max) {
+                        if (count != min) {
+                            return false;
+                        }
+                    } else {
+                        if (min > 0) {
+                            if (count < min) {
+                                return false;
+                            }
+                        }
+
+                        if (max > 0) {
+                            if (count < max) {
+                                return false;
+                            }
+                        }
+                    }
+                } else {
+                    throw "Invalid format for count constraint";
+                }
+            }
+
+            return true;
         }
     };
 
@@ -115,7 +213,7 @@
         config.formPrefix = $(config.formObj).attr('id');
         config.errors = {};
 
-        if ($(config.formObj).prop('tagName') !== 'FORM') {
+        if ($(config.formObj).prop('tagName').toUpperCase() !== 'FORM') {
             throw "Root element must be a form";
         }
 
@@ -160,17 +258,22 @@
 
             $(config.formObj).on('focus', 'input,select,textarea', function () {
                 showSuggestText(this);
-            }).on('blur', 'input,select,textarea', function (e) {
+            }).on('blur', 'input,select,textarea', function () {
                 hideSuggestText(this);
-                return validateElement(this, e);
-            }).on('change', 'input,select,textarea', function (e) {
-                return validateElement(this, e);
+                return validateElement(this);
+            }).on('change', 'input,select,textarea', function () {
+                return validateElement(this);
             });
         }
 
         return config.formObj;
     };
 
+    /**
+     * Maps error messages back to the corresponding form field
+     *
+     * @param errors
+     */
     var ajaxErrors = function (errors) {
         clearErrors();
         traverseErrorObject(errors, config.formPrefix);
@@ -217,16 +320,22 @@
                 html += formatMessageTemplate(error);
             });
 
-            $(config.formObj).find('[data-validation-for="' + key + '"]').removeClass('hide').html(html);
+            $(config.formObj).find('[data-validation-for="' + key + '"]').removeClass(config.hideClass).html(html);
         });
 
         // Add optional title to root-level error message block
         if (config.rootErrorMessage) {
             var title = formatMessageTemplate(config.rootErrorMessage, 'title');
-            $(config.formObj).find('[data-validation-for="' + config.formPrefix + '"]').removeClass('hide').prepend(title);
+            $(config.formObj).find('[data-validation-for="' + config.formPrefix + '"]').removeClass(config.hideClass).prepend(title);
         }
     };
 
+    /**
+     * Validates all form fields
+     *
+     * @param form
+     * @returns {boolean}
+     */
     var validateForm = function (form) {
         var hasErrors = false;
 
@@ -241,11 +350,16 @@
         return !hasErrors;
     };
 
-    var validateElement = function (el, event) {
+    /**
+     * Validates a single form field/group
+     *
+     * @param el
+     * @returns {boolean}
+     */
+    var validateElement = function (el) {
 
         var element = $(el);
         var errors = [];
-        var required = ( $(el).attr('required') ) ? true : false;
 
         // Skip validation on this field
         if (element.attr('data-ignore-validation') ||
@@ -291,40 +405,117 @@
         return true;
     };
 
-    var clearErrors = function () {
-        $(config.formObj).find('[data-validation-for]').each(function () {
-            $(this).html('').addClass('hide');
-            $('#' + $(this).attr('data-validation-for')).removeClass('error');
-        });
+    /**
+     * Executes a constraint's validation method
+     *
+     * returns true if validation passed
+     * returns false if validation fails
+     *
+     * @param element
+     * @param assertion
+     * @returns {*}
+     */
+    var validate = function (element, assertion) {
+        var value = element.val();
+        var expression = assertion.match(/^__\((.*)\)__$/);
+        var generic = assertion.match(/__([_a-zA-Z0-9]+)__/g);
+        var required = ( $(element).attr('required') ) ? true : false;
+
+        if (assertion.match(/^COUNT(.*)$/)) {
+            return constraints.Count(element, assertion);
+
+        } else {
+            // If a field is blank and not required, there is no need to validate
+            if (value == '' && !required) {
+                return true;
+            }
+
+            if (expression && expression.length >= 2) {
+                return constraints.Expression(value, expression[1].replace('{{value}}', element.val()));
+
+            } else if (generic) {
+                if (config.map[assertion]) {
+                    var methodName = config.map[assertion];
+
+                    if (typeof constraints[methodName] == 'function') {
+                        return constraints[methodName](value, assertion);
+                    }
+                } else {
+                    throw "No method mapped to key \"" + assertion + "\"";
+                }
+            } else {
+                return constraints.Regex(value, assertion);
+            }
+        }
+
+        return true;
     };
 
+    /**
+     * Shows suggest test for an individual form element
+     *
+     * @param element
+     */
     var showSuggestText = function (element) {
-        var text = $(element).data('suggest');
+        var text = $(element).data(config.suggestClass);
 
         if (text != undefined && text != '') {
             var html = formatSuggestTemplate(text);
-            $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', 'suggest').html(html);
+            $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', config.suggestClass).html(html);
         }
     };
+
+    /**
+     * Hides suggest text for an individual form element
+     *
+     * @param element
+     */
     var hideSuggestText = function (element) {
-        $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', 'error hide').html('');
+        $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').attr('class', config.errorClass + ' ' + config.hideClass).html('');
     };
 
+    /**
+     * Hide errors for individual form element
+     *
+     * @param element
+     */
     var hideErrors = function (element) {
-        $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').addClass('hide');
-        $(element).removeClass('error');
+        $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]').addClass(config.hideClass);
+        $(element).removeClass(config.errorClass).addClass(config.successClass);
     };
 
+    /**
+     * Show errors for individual form element
+     *
+     * @param element
+     * @param errors
+     */
     var showErrors = function (element, errors) {
         var alert = $(element).parent().find('[data-validation-for="' + $(element).attr('id') + '"]');
 
         if (alert != undefined) {
-            alert.removeClass('hide');
+            alert.removeClass(config.hideClass);
             alert.html(formatErrors(errors));
-            $(element).addClass('error');
+            $(element).addClass(config.errorClass).removeClass(config.successClass);
         }
     };
 
+    /**
+     * Empties and hides all error messages
+     */
+    var clearErrors = function () {
+        $(config.formObj).find('[data-validation-for]').each(function () {
+            $(this).html('').addClass(config.hideClass);
+            $('#' + $(this).attr('data-validation-for')).removeClass('error');
+        });
+    };
+
+    /**
+     * Formats errors
+     *
+     * @param errors
+     * @returns {string}
+     */
     var formatErrors = function (errors) {
         var html = '';
 
@@ -335,92 +526,12 @@
         return html;
     };
 
-    var validate = function (element, assertion) {
-        var value = element.val();
-        var expression = assertion.match(/^__\((.*)\)__$/);
-        var generic = assertion.match(/__([\_a-zA-Z0-9]+)__/g);
-        var map = {
-            "__NOT_BLANK__": "NotBlank",
-            "__LUHN__": "Luhn"
-        };
-
-        if (assertion.match(/^COUNT(.*)$/)) {
-            return countChoiceElements(element, assertion);
-        } else if (expression && expression.length >= 2 && value != '') {
-            return constraints.Expression(value, expression[1].replace('{{value}}', element.val()));
-
-        } else if (generic) {
-            if (map[assertion] != undefined) {
-
-                var method = map[assertion];
-
-                if (typeof constraints[method] == 'function') {
-                    return constraints[method](value, assertion);
-                }
-            }
-        } else {
-            return constraints.Regex(value, assertion);
-        }
-
-        return true;
-    };
-
-    var countChoiceElements = function (element, assertion) {
-        var match = assertion.match(/^COUNT\((.*)\)$/);
-
-        if (match.length > 1) {
-            var string = match[1];
-            var parts = string.split('|');
-
-            if (parts.length == 3) {
-                var selector = parts[0];
-                var min = parts[1];
-                var max = parts[2];
-                var count = 0;
-                var type = $(selector).attr('type');
-                var tag = $(selector).prop('tagName');
-
-                if (tag != undefined) {
-                    if (tag.toUpperCase() == 'DIV') {
-                        $.each($(selector).find('input[type="checkbox"]'), function (idx, el) {
-                            if ($(el).is(':checked')) {
-                                count++;
-                            }
-                        });
-                    } else if (tag.toUpperCase() == 'SELECT') {
-                        $.each($(selector).find('option'), function (idx, el) {
-                            if ($(el).is(':selected')) {
-                                count++;
-                            }
-                        });
-                    }
-                }
-
-                if (min > 0 && min == max) {
-                    if (count != min) {
-                        return false;
-                    }
-                } else {
-                    if (min > 0) {
-                        if (count < min) {
-                            return false;
-                        }
-                    }
-
-                    if (max > 0) {
-                        if (count < max) {
-                            return false;
-                        }
-                    }
-                }
-            } else {
-                throw "Invalid format for count constraint";
-            }
-        }
-
-        return true;
-    };
-
+    /**
+     * Replaces {{message}} with the msg argument
+     *
+     * @param msg
+     * @returns string
+     */
     var formatSuggestTemplate = function (msg) {
         return config.suggestTemplate.replace('{{message}}', msg);
     };
@@ -430,7 +541,7 @@
      *
      * @param msg
      * @param cssClass
-     * @returns {string}
+     * @returns string
      */
     var formatMessageTemplate = function (msg, cssClass) {
         var classAttr = (cssClass) ? ' class="' + cssClass + '"' : '';
