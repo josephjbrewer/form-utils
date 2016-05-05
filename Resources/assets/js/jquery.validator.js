@@ -266,6 +266,10 @@
             });
         }
 
+        $(config.formObj).on('reset', function () {
+            clearErrors();
+        });
+
         return config.formObj;
     };
 
