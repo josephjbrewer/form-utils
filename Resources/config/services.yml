@@ -1,14 +1,14 @@
 services:
     jjb.form_utils.twig.extension.add_js_constraints:
         class: JJB\FormUtilsBundle\Twig\JSConstraintExtension
-        arguments: [@jjb.form_utils.service.js_constraint]
+        arguments: ["@jjb.form_utils.service.js_constraint"]
         tags:
             - { name: twig.extension, alias: add_js_constraints }
 
     jjb.form_utils.service.js_constraint:
         class: JJB\FormUtilsBundle\Service\JSConstraintService
-        arguments: [@translator.default]
+        arguments: ["@translator.default"]
 
     jjb.form_utils.service.meta_data_constraint:
         class: JJB\FormUtilsBundle\Service\MetaDataConstraintService
-        arguments: [@validator]
+        arguments: ["@validator"]
